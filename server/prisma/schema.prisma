@@ -11,9 +11,43 @@ datasource db {
 }
 
 model Habit {
-  id        String   @id @default(uuid())
+  id        String          @id @default(uuid())
   title     String
-  createdAt DateTime @default(now()) @map("created_at")
+  createdAt DateTime        @default(now()) @map("created_at")
+  dayHabits DayHabit[]
+  weekDays  HabitWeekDays[]
 
   @@map("habits")
+}
+
+model HabitWeekDays {
+  id      String @id @default(uuid())
+  habitId String @map("habit_id")
+  weekDay Int    @map("week_day")
+
+  habit Habit @relation(fields: [habitId], references: [id])
+
+  @@unique([habitId, weekDay])
+  @@map("habit_week_days")
+}
+
+model Day {
+  id        String     @id @default(uuid())
+  date      DateTime // This allows for us to skip creating days that we didn't do anything
+  dayHabits DayHabit[]
+
+  @@unique([date])
+  @@map("days")
+}
+
+model DayHabit {
+  id      String @id @default(uuid())
+  dayId   String @map("day_id")
+  habitId String @map("habit_id")
+
+  day   Day   @relation(fields: [dayId], references: [id])
+  habit Habit @relation(fields: [habitId], references: [id])
+
+  @@unique([dayId, habitId])
+  @@map("day_habits")
 }
