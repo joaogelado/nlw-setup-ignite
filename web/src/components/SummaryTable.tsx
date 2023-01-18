@@ -1,9 +1,9 @@
-import { generateDatesFromBegginingOfYear } from "../utils/generate-dates-from-beginning-of-year";
+import { generateDatesFromBeginningOfYear } from "../utils/generate-dates-from-beginning-of-year";
 import { HabitDay } from "./HabitDay";
 
 const weekDays = ["D", "S", "T", "Q", "Q", "S", "S"];
 
-const summaryDates = generateDatesFromBegginingOfYear();
+const summaryDates = generateDatesFromBeginningOfYear();
 
 const minimumSummaryTiles = 18 * 7;
 
