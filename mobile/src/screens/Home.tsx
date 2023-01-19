@@ -4,15 +4,20 @@ import { HabitDay, DAY_SIZE } from "../components/HabitDay";
 import { Header } from "../components/Header";
 import { generateDatesFromBeginningOfYear } from "../utils/generate-dates-from-beginning-of-year";
 
+import { useNavigation } from "@react-navigation/native";
+import dayjs from "dayjs";
+
 const weekDays = ["D", "S", "T", "Q", "Q", "S", "S"];
 
 const datesFromBeginningOfYear = generateDatesFromBeginningOfYear();
 
-const minimumAmountOfTiles = 5 * 18;
+const minimumAmountOfTiles = 5 * 18 + 1;
 const amountOfTilesToFill =
   minimumAmountOfTiles - datesFromBeginningOfYear.length;
 
 export function Home() {
+  const { navigate } = useNavigation();
+
   return (
     <View className="flex-1 bg-background px-8 pt-16">
       <Header />
@@ -31,8 +36,19 @@ export function Home() {
       </View>
       <ScrollView>
         <View className="flex-row flex-wrap pb-16">
-          {datesFromBeginningOfYear.map((date) => (
-            <HabitDay key={date.toString()} />
+          {datesFromBeginningOfYear.map((date, i) => (
+            <HabitDay
+              i={i}
+              key={date.toString()}
+              onPress={() =>
+                navigate("habit", {
+                  date: date.toISOString(),
+                })
+              }
+              habitsCompleted={Math.round(Math.random() * 6)}
+              maxHabits={5}
+              isToday={dayjs(date).format("DD/MM") === dayjs().format("DD/MM")}
+            />
           ))}
 
           {amountOfTilesToFill > 0 &&
