@@ -4,6 +4,13 @@ import { z } from "zod";
 import dayjs from "dayjs";
 
 export async function serverRoutes(server: FastifyInstance) {
+  /**
+   * Create a habit with
+   *
+   * @param title - (Body) The title of the habit
+   * @param weekDays - (Body) An array of numbers from 0 to 6, representing the days of the week
+   * @param skipToday - (Body) If true, the habit will be created and will just start to count the next day
+   */
   server.post("/habits", async (req, res) => {
     const createHabitBody = z.object({
       title: z.string(),
@@ -38,6 +45,11 @@ export async function serverRoutes(server: FastifyInstance) {
     };
   });
 
+  /**
+   * Get all habits of a specific day
+   *
+   * @param date - (Query) The date of the day
+   */
   server.get("/days", async (req, res) => {
     const getDayQuery = z.object({
       date: z.coerce.date(),
@@ -98,5 +110,103 @@ export async function serverRoutes(server: FastifyInstance) {
         };
       }
     }
+  });
+
+  /**
+   * Complete/uncomplete a habit
+   *
+   * @param habitId - (Params) The id of the habit
+   */
+  server.patch("/habits/:habitId/toggle", async (req, res) => {
+    const toggleHabitParams = z.object({
+      habitId: z.string().uuid(),
+    });
+
+    const unsafeParams = req.params;
+
+    const params = toggleHabitParams.parse(unsafeParams);
+
+    const { habitId } = params;
+
+    const today = dayjs().startOf("day").toDate();
+
+    let day = await prisma.day.findUnique({
+      where: {
+        date: today,
+      },
+    });
+
+    if (!day) {
+      day = await prisma.day.create({
+        data: {
+          date: today,
+          dayHabits: {
+            create: [],
+          },
+        },
+      });
+    }
+
+    const dayHabit = await prisma.dayHabit.findUnique({
+      where: {
+        dayId_habitId: {
+          dayId: day.id,
+          habitId,
+        },
+      },
+    });
+
+    if (dayHabit) {
+      await prisma.dayHabit.delete({
+        where: {
+          id: dayHabit.id,
+        },
+      });
+    } else {
+      await prisma.dayHabit.create({
+        data: {
+          dayId: day.id,
+          habitId,
+        },
+      });
+    }
+
+    return {
+      success: true,
+      completed: !dayHabit,
+    };
+  });
+
+  server.get("/summary", async (req, res) => {
+    //// Quert mais complexa, mais condições, relacionamentos => SQL na mão (RAW)
+    //// Prisma ORM: RAW SQL => SQLite ++ =/= PostgreSQL, etc
+
+    const summary = await prisma.$queryRaw`
+      SELECT
+        D.id,
+        D.date,
+        (
+          SELECT
+            cast(count(*) as float)
+          FROM day_habits DH
+          WHERE DH.day_id = D.id
+        ) as completed,
+        (
+          SELECT
+            cast(count(*) as float)
+          FROM habit_week_days HWD
+          JOIN habits H
+            ON H.id = HWD.habit_id
+          WHERE
+            HWD.week_day = cast(strftime('%w', D.date/1000.0, "unixepoch") as int)
+            AND H.created_at <= D.date
+        ) as amount
+      FROM days D
+    `;
+
+    return {
+      success: true,
+      summary,
+    };
   });
 }
