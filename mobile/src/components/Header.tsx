@@ -1,17 +1,30 @@
-import { View, TouchableOpacity, Text } from "react-native";
+import { View, TouchableOpacity, Text, Pressable, Alert } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import colors from "tailwindcss/colors";
 
 import Logo from "../assets/logo.svg";
 
 import { useNavigation } from "@react-navigation/native";
+import { useState } from "react";
+import clsx from "clsx";
 
 export function Header() {
+  const [easterEgg, setEasterEgg] = useState(false);
+
+  console.log(easterEgg);
+
   const { navigate } = useNavigation();
 
   return (
     <View className="w-full flex-row items-center justify-between">
-      <Logo />
+      <Pressable
+        className={`${
+          easterEgg ? "bg-green-500 from-red-500 via-green-500 to-blue-500" : ""
+        }`}
+        onLongPress={() => setEasterEgg((oldState) => !oldState)}
+      >
+        <Logo />
+      </Pressable>
 
       <TouchableOpacity
         activeOpacity={0.7}

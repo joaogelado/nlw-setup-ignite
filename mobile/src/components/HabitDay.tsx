@@ -14,41 +14,40 @@ export const DAY_SIZE =
   Dimensions.get("screen").width / WEEK_DAYS - (SCREEN_HORIZONTAL_PADDING + 5);
 
 interface HabitDayProps extends TouchableOpacityProps {
-  habitsCompleted: number;
-  maxHabits: number;
-  isToday?: boolean;
-  i: number;
+  habitsCompleted?: number;
+  maxHabits?: number;
+  date: Date;
 }
 
+import { generateProgressPercentage } from "../utils/generate-progress-percentage";
+import dayjs from "dayjs";
+
 export function HabitDay({
-  habitsCompleted,
-  maxHabits,
-  isToday = false,
-  i,
+  habitsCompleted = 0,
+  maxHabits = 0,
+  date,
   ...rest
 }: HabitDayProps) {
-  const percentageInDecimals =
-    Math.round((habitsCompleted / maxHabits) * 100) / 100;
+  const { percentage } = generateProgressPercentage(maxHabits, habitsCompleted);
 
-  let shade = "bg-zinc-900 border-zinc-800";
+  const isToday = dayjs(date).isSame(dayjs(), "day");
 
-  if (percentageInDecimals == 1) {
-    shade = "bg-violet-500 border-violet-300";
-  } else if (percentageInDecimals > 0.8) {
-    shade = "bg-violet-600 border-violet-400";
-  } else if (percentageInDecimals > 0.6) {
-    shade = "bg-violet-700 border-violet-500";
-  } else if (percentageInDecimals > 0.4) {
-    shade = "bg-violet-800 border-violet-600";
-  } else if (percentageInDecimals > 0.2) {
-    shade = "bg-violet-900 border-violet-700";
-  }
+  console.log(percentage);
 
   return (
     <TouchableOpacity
-      className={`rounded-lg m-1 ${shade} ${
-        isToday ? "border-4" : "border-2"
-      } `}
+      className={clsx("rounded-lg border-2 m-1", {
+        ["bg-zinc-900 border-zinc-800"]: percentage == 0,
+        ["bg-violet-900 border-violet-700"]: percentage > 0 && percentage < 20,
+        ["bg-violet-800 border-violet-600"]:
+          percentage >= 20 && percentage < 40,
+        ["bg-violet-700 border-violet-500"]:
+          percentage >= 40 && percentage < 60,
+        ["bg-violet-600 border-violet-400"]:
+          percentage >= 60 && percentage < 80,
+        ["bg-violet-500 border-violet-300"]: percentage >= 80,
+        ["border-violet-100 border-4"]: isToday,
+      })}
       style={{
         width: DAY_SIZE,
         height: DAY_SIZE,
