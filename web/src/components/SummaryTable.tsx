@@ -43,21 +43,22 @@ export function SummaryTable() {
         })}
       </div>
       <div className="grid grid-rows-7 grid-flow-col gap-3">
-        {summaryDates.map((date, index) => {
-          const dayInSummary = summary.find((day) =>
-            dayjs(date).isSame(day.date, "day")
-          );
+        {summary.length > 0 &&
+          summaryDates.map((date, index) => {
+            const dayInSummary = summary.find((day) =>
+              dayjs(date).isSame(day.date, "day")
+            );
 
-          return (
-            <HabitDay
-              key={date.toString()}
-              isToday={index + 1 == summaryDates.length}
-              date={date}
-              habitsCompleted={dayInSummary?.completed}
-              maxHabits={dayInSummary?.amount}
-            />
-          );
-        })}
+            return (
+              <HabitDay
+                key={date.toString()}
+                isToday={index + 1 == summaryDates.length}
+                date={date}
+                defaultHabitsCompleted={dayInSummary?.completed}
+                maxHabits={dayInSummary?.amount}
+              />
+            );
+          })}
         {missingTiles > 0 &&
           Array.from({ length: missingTiles }).map((_, index) => {
             return (

@@ -50,7 +50,7 @@ export async function serverRoutes(server: FastifyInstance) {
    *
    * @param date - (Query) The date of the day
    */
-  server.get("/days", async (req, res) => {
+  server.get("/day", async (req, res) => {
     const getDayQuery = z.object({
       date: z.coerce.date(),
     });
@@ -87,9 +87,8 @@ export async function serverRoutes(server: FastifyInstance) {
         },
       });
 
-      const completedHabits = day?.dayHabits.map(
-        (dayHabit) => dayHabit.habitId
-      );
+      const completedHabits =
+        day?.dayHabits.map((dayHabit) => dayHabit.habitId) ?? [];
 
       return {
         success: true,

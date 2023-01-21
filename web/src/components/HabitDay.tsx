@@ -3,30 +3,37 @@ import { PropsWithChildren, useEffect, useState } from "react";
 import clsx from "clsx";
 
 import * as Popover from "@radix-ui/react-popover";
-import * as Checkbox from "@radix-ui/react-checkbox";
 import { ProgressBar } from "./ProgressBar";
-import { Check } from "phosphor-react";
 import dayjs from "dayjs";
+import { HabitsList } from "./HabitsList";
 
 type HabitProps = PropsWithChildren<{
   isToday?: boolean;
   date: Date;
-  habitsCompleted?: number;
+  defaultHabitsCompleted?: number;
   maxHabits?: number;
 }>;
 
 export function HabitDay({
   isToday,
-  habitsCompleted = 0,
+  defaultHabitsCompleted = 0,
   maxHabits = 0,
   date,
 }: HabitProps) {
+  const [habitsCompleted, setHabitsCompleted] = useState(
+    defaultHabitsCompleted
+  );
   const percentage =
     maxHabits > 0 ? Math.round((habitsCompleted / maxHabits) * 100) : 0;
   const percentageInDecimals = percentage / 100;
 
   const dayAndMonth = dayjs(date).format("DD/MM");
   const dayOfWeek = dayjs(date).format("dddd");
+
+  function handleAmountCompletedChange(completed: number) {
+    console.log("completed", completed);
+    setHabitsCompleted(completed);
+  }
 
   // Old aproach
 
@@ -50,7 +57,7 @@ export function HabitDay({
     <Popover.Root>
       <Popover.Trigger
         className={clsx(
-          `h-10 w-10 border-2 rounded-lg hover:opacity-80 hover:border-white hover:border-4 transition ease-in-out duration-300 focus:border-white focus:border-4 focus:outline-none`,
+          `h-10 w-10 border-2 rounded-lg hover:opacity-80 hover:border-4  transition-all ease-in-out duration-300 focus:border-4 focus:outline-none`,
           {
             "border-4": isToday,
           },
@@ -64,7 +71,7 @@ export function HabitDay({
               percentageInDecimals >= 0.4 && percentageInDecimals < 0.6,
             "bg-violet-900 border-violet-700":
               percentageInDecimals >= 0.2 && percentageInDecimals < 0.4,
-            "bg-zinc-900 border-zinc-800": percentageInDecimals == 0,
+            "bg-zinc-900 border-zinc-800": percentageInDecimals < 0.2,
           }
         )}
       />
@@ -88,18 +95,10 @@ export function HabitDay({
             {percentage}%
           </span>
 
-          <div className="mt-6 flex flex-col gap-3">
-            <Checkbox.Root className="flex items-center gap-3 group">
-              <div className="h-8 w-8 rounded-lg flex items-center justify-center bg-zinc-900 border-2 border-zinc-800 group-data-[state=checked]:border-green-400 group-data-[state=checked]:bg-green-500">
-                <Checkbox.Indicator>
-                  <Check size={20} className="text-white" />
-                </Checkbox.Indicator>
-              </div>
-              <span className="font-semibold text-xl text-white leading-tight group-data-[state=checked]:line-through group-data-[state=checked]:text-zinc-400">
-                Beber 2L de água
-              </span>
-            </Checkbox.Root>
-          </div>
+          <HabitsList
+            date={date}
+            onAmountCompletedChanged={handleAmountCompletedChange}
+          />
 
           <Popover.Arrow className="fill-zinc-900" height={8} width={16} />
         </Popover.Content>
