@@ -32,8 +32,6 @@ export function HabitDay({
 
   const isToday = dayjs(date).isSame(dayjs(), "day");
 
-  console.log(percentage);
-
   return (
     <TouchableOpacity
       className={clsx("rounded-lg border-2 m-1", {
@@ -46,7 +44,7 @@ export function HabitDay({
         ["bg-violet-600 border-violet-400"]:
           percentage >= 60 && percentage < 80,
         ["bg-violet-500 border-violet-300"]: percentage >= 80,
-        ["border-violet-100 border-4"]: isToday,
+        "border-4": isToday,
       })}
       style={{
         width: DAY_SIZE,

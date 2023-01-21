@@ -9,23 +9,11 @@ import { useState } from "react";
 import clsx from "clsx";
 
 export function Header() {
-  const [easterEgg, setEasterEgg] = useState(false);
-
-  console.log(easterEgg);
-
   const { navigate } = useNavigation();
 
   return (
     <View className="w-full flex-row items-center justify-between">
-      <Pressable
-        className={`${
-          easterEgg ? "bg-green-500 from-red-500 via-green-500 to-blue-500" : ""
-        }`}
-        onLongPress={() => setEasterEgg((oldState) => !oldState)}
-      >
-        <Logo />
-      </Pressable>
-
+      <Logo />
       <TouchableOpacity
         activeOpacity={0.7}
         className="flex-row h-11 px-4 border border-violet-500 rounded-lg items-center"

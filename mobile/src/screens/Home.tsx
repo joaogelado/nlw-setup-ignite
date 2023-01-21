@@ -4,9 +4,9 @@ import { HabitDay, DAY_SIZE } from "../components/HabitDay";
 import { Header } from "../components/Header";
 import { generateDatesFromBeginningOfYear } from "../utils/generate-dates-from-beginning-of-year";
 
-import { useNavigation } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import dayjs from "dayjs";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { api } from "../lib/axios";
 
 import { AxiosError } from "axios";
@@ -49,9 +49,11 @@ export function Home() {
     }
   }
 
-  useEffect(() => {
-    fetchData();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      fetchData();
+    }, [])
+  );
 
   return (
     <View className="flex-1 bg-background px-8 pt-16">
